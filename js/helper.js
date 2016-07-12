@@ -86,7 +86,7 @@ function logClicks(x,y) {
 }
 
 $(document).click(function(loc) {
-  // your code goes here!
+    logClicks(loc.pageX,loc.pageY);
 });
 
 
@@ -103,11 +103,12 @@ var map;    // declares a global map variable
 Start here! initializeMap() is called when page is loaded.
 */
 function initializeMap() {
-
+  //  console.log("initializing Map");
   var locations;
 
   var mapOptions = {
-    disableDefaultUI: true
+    disableDefaultUI: true,
+    scrollwheel: false
   };
 
   /*
@@ -168,6 +169,7 @@ function initializeMap() {
       title: name
     });
 
+    google.maps.InfoWindow.prototype.opened = false;
     // infoWindows are the little helper windows that open when you click
     // or hover over a pin on a map. They usually contain more information
     // about a location.
@@ -177,7 +179,14 @@ function initializeMap() {
 
     // hmmmm, I wonder what this is about...
     google.maps.event.addListener(marker, 'click', function() {
-      // your code goes here!
+        if(infoWindow.opened){
+          infoWindow.close();
+          infoWindow.opened = false;
+        }
+        else{
+          infoWindow.open(map, marker);
+          infoWindow.opened = true;
+        }
     });
 
     // this is where the pin actually gets added to the map.
@@ -210,16 +219,16 @@ function initializeMap() {
     var service = new google.maps.places.PlacesService(map);
 
     // Iterates through the array of locations, creates a search object for each location
-      locations.forEach(function(place){
+    locations.forEach(function(place){
       // the search request object
-      var request = {
-        query: place
-      };
-
-      // Actually searches the Google Maps API for location data and runs the callback
-      // function with the search results after each search.
-      service.textSearch(request, callback);
-    });
+        var request = {
+          query: place
+        };
+        
+        // Actually searches the Google Maps API for location data and runs the callback
+        // function with the search results after each search.
+        service.textSearch(request, callback);
+      });
   }
 
   // Sets the boundaries of the map based on pin locations
@@ -239,11 +248,11 @@ Uncomment the code below when you're ready to implement a Google Map!
 */
 
 // Calls the initializeMap() function when the page loads
-//window.addEventListener('load', initializeMap);
+window.addEventListener('load', initializeMap);
 
 // Vanilla JS way to listen for resizing of the window
 // and adjust map bounds
-//window.addEventListener('resize', function(e) {
-  //Make sure the map bounds get updated on page resize
-//  map.fitBounds(mapBounds);
-//});
+window.addEventListener('resize', function(e) {
+    //Make sure the map bounds get updated on page resize
+    map.fitBounds(mapBounds);
+});
